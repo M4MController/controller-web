@@ -1,3 +1,5 @@
+from uuid import getnode
+
 from sqlalchemy.exc import InternalError, IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import DateTime
@@ -148,6 +150,8 @@ class UserManager(BaseSqlManager):
         UserSocialTokensManager(self.session).create({
             'user_id': user.id
         })
+
+        self.session.query(Controller).update({'mac': str(getnode())})
 
         return user
 
