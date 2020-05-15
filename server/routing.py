@@ -47,7 +47,7 @@ class Registration(BaseResource):
     @schematic_request(RegisterRequestSchema())
     @schematic_response(RegisterSchema())
     def post(self, request_obj=None):
-        login = request_obj['login']
+        login = 'admin'
         pwd = request_obj['password'].encode('utf-8')
 
         pwd_hash = bcrypt.hashpw(pwd, bcrypt.gensalt()).decode('utf-8')
@@ -62,7 +62,7 @@ class Auth(BaseResource):
     @schematic_request(AuthRequestSchema())
     @schematic_response(AuthSchema())
     def post(self, request_obj=None):
-        login = request_obj['login']
+        login = 'admin'
         pwd = request_obj['password'].encode('utf-8')
 
         user = UserManager(self.db_session).get_by_login(login)
