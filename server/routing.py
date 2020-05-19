@@ -3,7 +3,24 @@ from flask import request
 from flask_jwt_extended import create_access_token
 from marshmallow import Schema, fields
 
+from server.database.managers import (
+	SensorManager,
+	SensorDataManager,
+	ObjectManager,
+	ControllerManager,
+	UserManager,
+	UserInfoManager,
+	UserSocialTokensManager,
+)
+from server.errors import InvalidArgumentError
 from server.resources.base import BaseResource
+from server.resources.utils import (
+	provide_db_session,
+	schematic_response,
+	schematic_request,
+	with_user_id,
+	authorized,
+)
 from server.schemas import (
 	SensorDataPostSchema,
 	ResourceSchema,
@@ -17,25 +34,6 @@ from server.schemas import (
 	ControllerSchema,
 	SensorSchema,
 )
-
-from server.resources.utils import (
-	provide_db_session,
-	schematic_response,
-	schematic_request,
-	with_user_id,
-	authorized,
-)
-
-from server.database.managers import (
-	SensorManager,
-	SensorDataManager,
-	ObjectManager,
-	ControllerManager,
-	UserManager,
-	UserInfoManager,
-	UserSocialTokensManager,
-)
-
 from server.validation.schema import (
 	RegisterRequestSchema,
 	AuthRequestSchema,
@@ -44,8 +42,6 @@ from server.validation.schema import (
 	ControllerRequestSchema,
 	SensorRequestSchema,
 )
-
-from server.errors import InvalidArgumentError
 
 
 class Registration(BaseResource):
