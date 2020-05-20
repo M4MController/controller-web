@@ -106,7 +106,10 @@ class UserTokens(BaseResource):
 	@schematic_response(UserSocialTokensSchema())
 	@with_user_id(True)
 	def patch(self, user_id=None, request_obj=None):
-		return UserSocialTokensManager(self.db_session).update(user_id, request_obj)
+		user_social_tokens_manager = UserSocialTokensManager(self.db_session)
+		user_social_tokens_manager.update(user_id, request_obj)
+
+		user_social_tokens_manager.sync_all(user_social_tokens_manager.get_by_user_id(user_id))
 
 
 class Users(BaseResource):

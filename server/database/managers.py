@@ -1,7 +1,11 @@
+import typing
+
+import m4m_sync
+
 from datetime import datetime, timezone
 from uuid import getnode
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, and_
 from sqlalchemy.exc import InternalError, IntegrityError
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -132,6 +136,24 @@ class SensorDataManager(BaseSqlManager):
 
 		return result[0]
 
+	def get_sensor_data_in_time_range(self, sensor_id: str, datetime_range: m4m_sync.utils.DateTimeRange) -> typing.List[SensorData]:
+		return self.session.query(SensorData).filter(
+			and_(
+				SensorData.sensor_id == sensor_id,
+				SensorData.data[time_field].astext.cast(DateTime) >= datetime_range.start,
+				SensorData.data[time_field].astext.cast(DateTime) <= datetime_range.end,
+			),
+		).all()
+
+	def get_first_sensor_data_date(self, sensor_id: str) -> datetime:
+		data = self.session.query(SensorData.data["timestamp"].astext.cast(DateTime)) \
+			.filter(SensorData.sensor_id == sensor_id) \
+			.order_by(SensorData.id.asc()) \
+			.limit(1) \
+			.all()
+		if len(data):
+			return data[0][0]
+
 
 class UserManager(BaseSqlManager):
 	model = User
@@ -185,3 +207,35 @@ class UserSocialTokensManager(BaseSqlManager):
 
 	def update(self, user_id: int, data: dict):
 		return self.session.query(self.model).filter_by(user_id=user_id).update(data)
+
+	def sync_all(self, user_tokens: UserSocialTokens):
+		key, = self.session.query(UserInfo.encrypt_key).filter(UserInfo.user_id == user_tokens.user_id).first()
+		if not key:
+			return
+
+		if user_tokens.yandex_disk:
+			self.__sync(m4m_sync.YaDiskStore(token=user_tokens.yandex_disk), key)
+
+	def __sync(self, store: m4m_sync.BaseStore, key: str):
+		senor_data_manager = SensorDataManager(self.session)
+		controllers = self.session.query(Controller).all()
+
+		for controller in controllers:
+			c = m4m_sync.stores.Controller(name=controller.name, mac=controller.mac)
+			store.prepare_for_sync_controller(c)
+
+			sensors = self.session.query(Sensor).filter_by(controller_id=controller.id).all()
+
+			for sensor in sensors:
+				first_date = senor_data_manager.get_first_sensor_data_date(sensor.id)
+
+				s = m4m_sync.stores.Sensor(name=sensor.name, id=sensor.id, controller=c)
+				store.prepare_for_sync_sensor(s)
+
+				store.sync(
+					sensor=s,
+					serializer=m4m_sync.CsvRawSerializer(),
+					stream_wrapper=m4m_sync.AesStreamWrapper(key=key),
+					first_date=first_date,
+					get_data=lambda time_range: senor_data_manager.get_sensor_data_in_time_range(sensor.id, time_range),
+				)
