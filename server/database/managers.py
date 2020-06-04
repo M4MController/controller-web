@@ -3,7 +3,6 @@ import typing
 import m4m_sync
 
 from datetime import datetime, timezone
-from uuid import getnode
 
 from sqlalchemy import DateTime, and_
 from sqlalchemy.exc import InternalError, IntegrityError
@@ -24,6 +23,7 @@ from server.errors import (
 	ObjectNotFoundError,
 	ObjectExistsError
 )
+from server.utils.hardaware import get_hardware_id
 
 time_field = 'timestamp'
 
@@ -172,7 +172,7 @@ class UserManager(BaseSqlManager):
 			'user_id': user.id
 		})
 
-		self.session.query(Controller).update({'mac': str(getnode())})
+		self.session.query(Controller).update({'mac': get_hardware_id()})
 
 		return user
 
