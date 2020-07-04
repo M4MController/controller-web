@@ -17,9 +17,9 @@ class AuthSchema(BaseAuthSchema):
 
 class UserInfoSchema(Schema):
 	id = fields.Integer()
-	family_name = fields.String()
-	name = fields.String()
-	second_name = fields.String()
+	first_name = fields.String()
+	last_name = fields.String()
+	middle_name = fields.String()
 	date_receiving = fields.Integer()
 	issued_by = fields.String()
 	division_number = fields.String()
@@ -41,7 +41,7 @@ class UserBriefSchema(Schema):
 class UserBriefInfoSchema(Schema):
 	user_id = fields.Integer()
 	user = fields.Nested(UserBriefSchema)
-	name = fields.String()
+	email = fields.String()
 
 
 class UserListSchema(Schema):

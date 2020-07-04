@@ -105,9 +105,9 @@ class UserInfo(Base):
 	__tablename__ = 'users_info'
 
 	user_id = Column(Integer, ForeignKey('users.id'), primary_key=True, nullable=False)
-	family_name = Column(String)
-	name = Column(String, name='username')
-	second_name = Column(String)
+	middle_name = Column(String)
+	first_name = Column(String)
+	last_name = Column(String)
 	date_receiving = Column(Integer)
 	issued_by = Column(String)
 	division_number = Column(String)
