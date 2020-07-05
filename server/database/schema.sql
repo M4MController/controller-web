@@ -52,9 +52,9 @@ ALTER TABLE users OWNER TO m4m;
 CREATE TABLE IF NOT EXISTS users_info
 (
   user_id INTEGER PRIMARY KEY REFERENCES users(id),
-  family_name VARCHAR,
-  username VARCHAR,
-  second_name VARCHAR,
+  first_name VARCHAR,
+  last_name VARCHAR,
+  middle_name VARCHAR,
   date_receiving INTEGER,
   issued_by VARCHAR,
   division_number VARCHAR,
