@@ -306,7 +306,6 @@ def register_routes(app):
 	app.register_route(SensorDataResource, 'sensor_data', '/sensor/<string:sensor_id>/data')
 	app.register_route(SensorPrivateResource, 'sensor_private', '/private/sensor/<string:sensor_id>/register')
 	app.register_route(SensorDataPrivateResource, 'sensor_data_private', '/private/sensor/<string:sensor_id>/data')
-	app.register_route(ObjectsResource, 'objects', '/objects')
 	app.register_route(ObjectCResource, 'create_object', '/object')
 	app.register_route(ObjectRUDResource, 'retrieve_update_delete_object', '/object/<int:object_id>')
 	app.register_route(ControllerCResource, 'create_controller', '/controller')
